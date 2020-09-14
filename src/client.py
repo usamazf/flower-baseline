@@ -135,7 +135,10 @@ def main() -> None:
 
     # Start client
     client = LocalClient(args.cid, model, trainset, testset)
-    fl.client.start_client(args.server_address, client)
+    try:
+        fl.client.start_client(args.server_address, client)
+    except:
+        print("SOMETHING IS WRONG")
 
 
 if __name__ == "__main__":
