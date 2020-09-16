@@ -18,6 +18,7 @@ from strategy.fedavg import FederatedAverage
 #                                                                            #
 #----------------------------------------------------------------------------#
 from configs import globals as glb
+import modules
 import models
 import datasets
 

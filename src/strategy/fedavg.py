@@ -6,7 +6,7 @@
 from typing import Callable, Dict, List, Optional, Tuple
 
 from flwr.server.strategy import Strategy
-from flwr.server.strategy.aggregate import aggregate
+from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 
 from flwr.common import (
     EvaluateIns,
@@ -59,6 +59,11 @@ class FederatedAverage(Strategy):
         clients."""
         num_clients = int(num_available_clients * self.fraction_fit)
         return max(num_clients, self.min_fit_clients), self.min_available_clients
+        
+    def num_evaluation_clients(self, num_available_clients: int) -> Tuple[int, int]:
+        """Use a fraction of available clients for evaluation."""
+        num_clients = int(num_available_clients * self.fraction_eval)
+        return max(num_clients, self.min_eval_clients), self.min_available_clients
     
     def on_configure_fit(
         self, rnd: int, weights: Weights, client_manager: ClientManager
@@ -69,7 +74,7 @@ class FederatedAverage(Strategy):
         if self.on_fit_config_fn is not None:
             # Custom fit config function provided
             config = self.on_fit_config_fn(rnd)
-        fit_ins = (parameters, config)
+        fit_ins = FitIns(parameters, config)
 
         # Sample clients
         sample_size, min_num_clients = self.num_fit_clients(
@@ -93,11 +98,12 @@ class FederatedAverage(Strategy):
             return None
         # Do not aggregate if there are failures and failures are not accepted
         if not self.accept_failures and failures:
+            print(failures)
             return None
         # Convert results
         weights_results = [
-            (parameters_to_weights(parameters), num_examples)
-            for client, (parameters, num_examples, _, _) in results
+            (parameters_to_weights(fit_res.parameters), fit_res.num_examples)
+            for client, fit_res in results
         ]
         return aggregate(weights_results)
 
@@ -111,7 +117,32 @@ class FederatedAverage(Strategy):
         self, rnd: int, weights: Weights, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, EvaluateIns]]:
         """Configure the next round of evaluation."""
-        pass
+        # Do not configure federated evaluation if a centralized evaluation
+        # function is provided
+        if self.eval_fn is not None:
+            return []
+
+        # Parameters and config
+        parameters = weights_to_parameters(weights)
+        config = {}
+        if self.on_evaluate_config_fn is not None:
+            # Custom evaluation config function provided
+            config = self.on_evaluate_config_fn(rnd)
+        evaluate_ins = EvaluateIns(parameters, config)
+
+        # Sample clients
+        if rnd >= 0:
+            sample_size, min_num_clients = self.num_evaluation_clients(
+                client_manager.num_available()
+            )
+            clients = client_manager.sample(
+                num_clients=sample_size, min_num_clients=min_num_clients
+            )
+        else:
+            clients = list(client_manager.all().values())
+
+        # Return client/config pairs
+        return [(client, evaluate_ins) for client in clients]
     
     def on_aggregate_evaluate(
         self,
@@ -120,8 +151,21 @@ class FederatedAverage(Strategy):
         failures: List[BaseException],
     ) -> Optional[float]:
         """Aggregate evaluation results."""
-        pass
+        if not results:
+            return None
+        # Do not aggregate if there are failures and failures are not accepted
+        if not self.accept_failures and failures:
+            return None
+        return weighted_loss_avg(
+            [
+                (evaluate_res.num_examples, evaluate_res.loss, evaluate_res.accuracy)
+                for _, evaluate_res in results
+            ]
+        )
     
     def evaluate(self, weights: Weights) -> Optional[Tuple[float, float]]:
         """Evaluate the current model weights."""
-        pass
+        if self.eval_fn is None:
+            # No evaluation function provided
+            return None
+        return self.eval_fn(weights)
