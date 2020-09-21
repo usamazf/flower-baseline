@@ -88,6 +88,7 @@ def main() -> None:
         min_available_clients=args.min_num_clients,
         eval_fn=get_eval_fn(testset),
         on_fit_config_fn=fit_config,
+        dummy_model = models.load_model(glb.MODEL),        
     )
     #strategy = fl.server.strategy.DefaultStrategy(
     #    fraction_fit=args.sample_fraction,

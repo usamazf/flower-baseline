@@ -46,7 +46,6 @@ class LocalClient(fl.client.Client):
         trainset: torchvision.datasets.CIFAR10,
         testset: torchvision.datasets.CIFAR10,
     ) -> None:
-        #super().__init__(cid)
         self.cid = cid
         self.model = model
         self.trainset = trainset
@@ -54,14 +53,14 @@ class LocalClient(fl.client.Client):
 
     def get_parameters(self) -> ParametersRes:
         print(f"Client {self.cid}: get_parameters")
-
+        
         weights: Weights = self.model.get_weights()
         parameters = fl.common.weights_to_parameters(weights)
         return ParametersRes(parameters=parameters)
 
     def fit(self, ins: FitIns) -> FitRes:
         print(f"Client {self.cid}: fit")
-
+        
         weights: Weights = fl.common.parameters_to_weights(ins.parameters)
         config = ins.config
         fit_begin = timeit.default_timer()
@@ -69,7 +68,7 @@ class LocalClient(fl.client.Client):
         # Get training config
         epochs = int(config["epochs"])
         batch_size = int(config["batch_size"])
-
+        
         # Set model parameters
         self.model.set_weights(weights)
 
@@ -81,6 +80,14 @@ class LocalClient(fl.client.Client):
 
         # Return the refined weights and the number of examples used for training
         weights_prime: Weights = self.model.get_weights()
+        
+        # check if quantization is requested
+        if glb.QUANTIZE:
+            weights_prime: Weights = modules.quantize(
+                weights=weights_prime, 
+                bits=glb.Q_BITS
+            )
+        
         params_prime = fl.common.weights_to_parameters(weights_prime)
         num_examples_train = len(self.trainset)
         fit_duration = timeit.default_timer() - fit_begin

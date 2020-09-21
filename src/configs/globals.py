@@ -21,7 +21,15 @@ def init( ):
 
     # define the id for the created training plan
     global USE_GPU
-    USE_GPU = False
+    USE_GPU = True
+    
+    # define if quantization should be used
+    global QUANTIZE
+    QUANTIZE = True
+    
+    # define the quantization bits [only used if above flag is set to true]
+    global Q_BITS
+    Q_BITS = 8
     
     # define the batch size you want to use
     #global BATCH_SIZE

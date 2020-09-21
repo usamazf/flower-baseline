@@ -21,6 +21,14 @@ from flwr.common import (
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 
+#----------------------------------------------------------------------------#
+#                                                                            #
+#   I M P O R T     L O C A L     L I B R A R I E S                          #
+#                                                                            #
+#----------------------------------------------------------------------------#
+from configs import globals as glb
+import modules
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Description:                                                                                #
@@ -42,6 +50,7 @@ class FederatedAverage(Strategy):
         on_fit_config_fn: Optional[Callable[[int], Dict[str, str]]] = None,
         on_evaluate_config_fn: Optional[Callable[[int], Dict[str, str]]] = None,
         accept_failures: bool = True,
+        dummy_model = None,
      ) -> None:
         super().__init__()
         self.min_fit_clients = min_fit_clients
@@ -53,6 +62,8 @@ class FederatedAverage(Strategy):
         self.on_fit_config_fn = on_fit_config_fn
         self.on_evaluate_config_fn = on_evaluate_config_fn
         self.accept_failures = accept_failures
+        # a dummy model used to determine dimensions of weights vector if quantization is used
+        self.dummy_model = dummy_model
     
     def num_fit_clients(self, num_available_clients: int) -> Tuple[int, int]:
         """Return the sample size and the required number of available
@@ -101,10 +112,16 @@ class FederatedAverage(Strategy):
             print(failures)
             return None
         # Convert results
-        weights_results = [
-            (parameters_to_weights(fit_res.parameters), fit_res.num_examples)
-            for client, fit_res in results
-        ]
+        if glb.QUANTIZE:
+            weights_results = [
+                (modules.dequantize(self.dummy_model, parameters_to_weights(fit_res.parameters), glb.Q_BITS), fit_res.num_examples)
+                for client, fit_res in results
+            ]
+        else:
+            weights_results = [
+                (parameters_to_weights(fit_res.parameters), fit_res.num_examples)
+                for client, fit_res in results
+            ]
         return aggregate(weights_results)
 
     def on_conclude_round(
