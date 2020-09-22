@@ -7,7 +7,6 @@ from typing import Tuple
 
 import os
 import numpy as np
-import tensorflow as tf
 
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.datasets.cifar import load_batch
@@ -50,8 +49,7 @@ def load_cifar() -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.nd
     x_test = x_test.astype(x_train.dtype)
     y_test = y_test.astype(y_train.dtype)
     
-    # Convert class vectors to one-hot encoded labels
-    y_train = tf.keras.utils.to_categorical(y_train, 10)
-    y_test = tf.keras.utils.to_categorical(y_test, 10)
+    # data normalization
+    x_train, x_test = x_train / 255.0, x_test / 255.0
     
     return (x_train, y_train), (x_test, y_test)

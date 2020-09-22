@@ -6,7 +6,9 @@
 from typing import Tuple, cast
 
 import numpy as np
+
 import tensorflow as tf
+from tensorflow.keras import layers, models
 
 import flwr as fl
 
@@ -29,62 +31,25 @@ class Net():
         self.model = self.build_model()
             
     def build_model(
-        self, seed: int = 28, input_shape: Tuple[int, int, int] = (32, 32, 3)
+        self, input_shape: Tuple[int, int, int] = (32, 32, 3)
     ) -> tf.keras.Model:
-        # Kernel initializer
-        kernel_initializer = tf.keras.initializers.glorot_uniform(seed=seed)
-
         # Build model layers
-        inputs = tf.keras.layers.Input(shape=input_shape)
-        # Convolutional Layer
-        layers = tf.keras.layers.Conv2D(
-            6, 
-            kernel_size=(5,5), 
-            kernel_initializer=kernel_initializer, 
-            activation='relu'
-        )(inputs)
-        # Max Pooling Layer
-        layers = tf.keras.layers.MaxPool2D(
-            pool_size=(2, 2), 
-            strides=(2, 2)
-        )(layers)
-        # Convolutional Layer
-        layers = tf.keras.layers.Conv2D(
-            16, 
-            kernel_size=(5,5), 
-            kernel_initializer=kernel_initializer, 
-            activation='relu'
-        )(layers)
-        # Max Pooling Layer
-        layers = tf.keras.layers.MaxPool2D(
-            pool_size=(2, 2), 
-            strides=(2, 2)
-        )(layers)
-        # Reshape Layer
-        layers = tf.keras.layers.Flatten()(layers)
-        # FC 1
-        layers = tf.keras.layers.Dense(
-            120, kernel_initializer=kernel_initializer, activation="relu"
-        )(layers)
-        # FC 2
-        layers = tf.keras.layers.Dense(
-            84, kernel_initializer=kernel_initializer, activation="relu"
-        )(layers)
-        # Output Layer
-        outputs = tf.keras.layers.Dense(
-            10, kernel_initializer=kernel_initializer, activation="softmax"
-        )(layers)
-
-        # build model
-        model = tf.keras.Model(inputs=inputs, outputs=outputs)
-
+        model = models.Sequential()
+        # Convolutional Layers
+        model.add(layers.Conv2D(6, (5, 5), activation='relu', input_shape=input_shape))
+        model.add(layers.MaxPooling2D((2, 2)))
+        model.add(layers.Conv2D(16, (5, 5), activation='relu'))
+        model.add(layers.MaxPooling2D((2, 2)))
+        # Flatten Layer
+        model.add(layers.Flatten())
+        # Fully connected layer
+        model.add(layers.Dense(120, activation='relu'))
+        model.add(layers.Dense(84, activation='relu'))
+        model.add(layers.Dense(10))
         # compile the model
-        model.compile(
-            optimizer=tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9),
-            loss=tf.keras.losses.categorical_crossentropy,
-            metrics=["accuracy"],
-        )
-
+        model.compile(optimizer='sgd',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
         # return newly built model
         return model
     
