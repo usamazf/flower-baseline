@@ -42,7 +42,7 @@ class PyTorchClient(fl.client.Client):
     def __init__(
         self,
         cid: str,
-        model,
+        model: torch.nn.Module,
         trainset: torchvision.datasets.CIFAR10,
         testset: torchvision.datasets.CIFAR10,
     ) -> None:
@@ -120,7 +120,7 @@ class PyTorchClient(fl.client.Client):
 #****************************************************************************#
 #                                                                            #
 #   description:                                                             #
-#   Load data, create and start PyTorchClient.                                 #
+#   Load data, create and start PyTorchClient.                               #
 #                                                                            #
 #****************************************************************************#
 def main() -> None:

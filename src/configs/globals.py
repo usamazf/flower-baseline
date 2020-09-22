@@ -29,7 +29,7 @@ def init( ):
     
     # define the quantization bits [only used if above flag is set to true]
     global Q_BITS
-    Q_BITS = 8
+    Q_BITS = 1
     
     # define the batch size you want to use
     #global BATCH_SIZE
