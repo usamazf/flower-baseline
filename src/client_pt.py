@@ -36,7 +36,7 @@ DEVICE = torch.device("cuda:0" if glb.USE_GPU else "cpu")
 #   extend the flower client base class to implement new clients.            #
 #                                                                            #
 #****************************************************************************#
-class LocalClient(fl.client.Client):
+class PyTorchClient(fl.client.Client):
     """Flower client implementing CIFAR-10 image classification using PyTorch."""
 
     def __init__(
@@ -76,7 +76,7 @@ class LocalClient(fl.client.Client):
         trainloader = torch.utils.data.DataLoader(
             self.trainset, batch_size=batch_size, shuffle=True
         )
-        modules.train(self.model, trainloader, epochs=epochs, device=DEVICE)
+        modules.pt_train(self.model, trainloader, epochs=epochs, device=DEVICE)
 
         # Return the refined weights and the number of examples used for training
         weights_prime: Weights = self.model.get_weights()
@@ -110,7 +110,7 @@ class LocalClient(fl.client.Client):
         testloader = torch.utils.data.DataLoader(
             self.testset, batch_size=32, shuffle=False
         )
-        loss, accuracy = modules.test(self.model, testloader, device=DEVICE)
+        loss, accuracy = modules.pt_test(self.model, testloader, device=DEVICE)
 
         # Return the number of evaluation examples and the evaluation result (loss)
         return EvaluateRes(
@@ -120,7 +120,7 @@ class LocalClient(fl.client.Client):
 #****************************************************************************#
 #                                                                            #
 #   description:                                                             #
-#   Load data, create and start LocalClient.                                 #
+#   Load data, create and start PyTorchClient.                                 #
 #                                                                            #
 #****************************************************************************#
 def main() -> None:
@@ -144,16 +144,16 @@ def main() -> None:
     fl.common.logger.configure(f"client_{args.cid}", host=args.log_host)
 
     # Load model and data
-    model = models.load_model(glb.MODEL)
+    model = models.load_model(model_name=glb.MODEL, framework="PT")
     model.to(DEVICE)
-    trainset, testset = datasets.load_data(glb.DATASET)
+    trainset, testset = datasets.load_data(dataset_name=glb.DATASET, framework="PT")
 
     # Start client
-    client = LocalClient(args.cid, model, trainset, testset)
+    client = PyTorchClient(args.cid, model, trainset, testset)
     try:
         fl.client.start_client(args.server_address, client)
     except:
-        print("SOMETHING WENT WRONG")
+        print("Either something went wrong or server finished execution!!")
 
 
 if __name__ == "__main__":

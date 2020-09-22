@@ -3,24 +3,21 @@
 #   I M P O R T     L I B R A R I E S                                        #
 #                                                                            #
 #----------------------------------------------------------------------------#
+import flwr as fl
+
+#----------------------------------------------------------------------------#
+#                                                                            #
+#   Define global parameters to be used through out the program              #
+#                                                                            #
+#----------------------------------------------------------------------------#
+
 
 #****************************************************************************#
 #                                                                            #
 #   description:                                                             #
-#   return the desired dataset.                                              #
+#   Simple CNN adapted from 'PyTorch: A 60 Minute Blitz'.                    #
 #                                                                            #
 #****************************************************************************#
-def load_data(dataset_name="cifar-10", framework="PT"):
-    
-    if dataset_name == "cifar-10":
-        # import the appropriate dataset file from the local directory
-        if framework == "PT":
-            from .pt_datasets.cifar import load_cifar
-            return load_cifar()
-        elif framework == "TF":
-            from .tf_datasets.cifar import load_cifar
-            return load_cifar()
-    
-    elif dataset_name == "SOMETHING ELSE":
-        pass
-    
+class Net():
+    # need to implement for tensorflow
+    pass

@@ -4,23 +4,18 @@
 #                                                                            #
 #----------------------------------------------------------------------------#
 
+#----------------------------------------------------------------------------#
+#                                                                            #
+#   Define global parameters to be used through out the program              #
+#                                                                            #
+#----------------------------------------------------------------------------#
+DATA_ROOT = "./data/cifar-10"
+
 #****************************************************************************#
 #                                                                            #
 #   description:                                                             #
-#   return the desired dataset.                                              #
+#   load and return the training and testing sets of cifar-10 dataset.       #
 #                                                                            #
 #****************************************************************************#
-def load_data(dataset_name="cifar-10", framework="PT"):
-    
-    if dataset_name == "cifar-10":
-        # import the appropriate dataset file from the local directory
-        if framework == "PT":
-            from .pt_datasets.cifar import load_cifar
-            return load_cifar()
-        elif framework == "TF":
-            from .tf_datasets.cifar import load_cifar
-            return load_cifar()
-    
-    elif dataset_name == "SOMETHING ELSE":
-        pass
-    
+def load_cifar():
+    pass

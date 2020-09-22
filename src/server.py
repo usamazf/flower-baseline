@@ -78,7 +78,7 @@ def main() -> None:
     fl.common.logger.configure("server", host=args.log_host)
 
     # Load evaluation data
-    _, testset = datasets.load_data(glb.DATASET)
+    _, testset = datasets.load_data(dataset_name=glb.DATASET, framework="PT")
 
     # Create client_manager, strategy, and server
     client_manager = fl.server.SimpleClientManager()
@@ -88,7 +88,7 @@ def main() -> None:
         min_available_clients=args.min_num_clients,
         eval_fn=get_eval_fn(testset),
         on_fit_config_fn=fit_config,
-        dummy_model = models.load_model(glb.MODEL),        
+        dummy_model = models.load_model(model_name=glb.MODEL, framework="PT"),        
     )
     #strategy = fl.server.strategy.DefaultStrategy(
     #    fraction_fit=args.sample_fraction,
@@ -126,7 +126,8 @@ def get_eval_fn(
         model.set_weights(weights)
         model.to(DEVICE)
         testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False)
-        return modules.test(model, testloader, device=DEVICE)
+        # using pytorch for central evaluation, can be tensorflow as well
+        return modules.pt_test(model, testloader, device=DEVICE) 
 
     return evaluate
 

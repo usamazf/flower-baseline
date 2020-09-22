@@ -13,7 +13,7 @@ def init( ):
         
     # define the model to use for training
     global MODEL
-    MODEL = "pytorch-blitz"       # vgg-13, vgg-16, vgg-19, resnet-18, resnet-50, resnet-101, resnet-152
+    MODEL = "simple-cnn"       # vgg-13, vgg-16, vgg-19, resnet-18, resnet-50, resnet-101, resnet-152
     
     # define the dateset to use for model training
     global DATASET
@@ -25,7 +25,7 @@ def init( ):
     
     # define if quantization should be used
     global QUANTIZE
-    QUANTIZE = True
+    QUANTIZE = False
     
     # define the quantization bits [only used if above flag is set to true]
     global Q_BITS
