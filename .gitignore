@@ -1,6 +1,4 @@
 # Byte-compiled / optimized / DLL files
- __pycache__/
- *.pyc
-
+__pycache__/
 src/data
-src/test_*.py
+src/test_*
