@@ -22,5 +22,14 @@ def load_model(model_name="simple-cnn", num_classes=10, framework="PT"):
             from .tf_models.simple_cnn import Net
             return Net()
     
+    elif model_name == "mlp-mnist":
+        # import the model from the local directory
+        if framework == "PT":
+            from .pt_models.mlp_mnist import Net
+            return Net()
+        elif framework == "TF":
+            from .tf_models.mlp_mnist import Net
+            return Net()
+
     elif model_name == "SOME OTHER":
         pass

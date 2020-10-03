@@ -41,7 +41,10 @@ class Net(nn.Module):
         """Compute forward pass."""
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 16 * 5 * 5)
+        # this is needed before flatten to match
+        # results with the tensorflow implementation
+        x = x.permute(0,2,3,1)
+        x = x.reshape(-1, 16 * 5 * 5)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)

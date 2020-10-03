@@ -23,14 +23,20 @@ DATA_ROOT = "./data/cifar-10"
 #****************************************************************************#
 def load_cifar() -> Tuple[torchvision.datasets.CIFAR10, torchvision.datasets.CIFAR10]:
     """Load CIFAR-10 (training and test set)."""
+    
+    # Define the transform for the data.
     transform = transforms.Compose(
         [transforms.ToTensor(), 
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     )
+    
+    # Initialize Datasets. CIFAR-10 will automatically download if not present
     trainset = torchvision.datasets.CIFAR10(
         root=DATA_ROOT, train=True, download=True, transform=transform
     )
     testset = torchvision.datasets.CIFAR10(
         root=DATA_ROOT, train=False, download=True, transform=transform
     )
+    
+    # Return the datasets
     return trainset, testset

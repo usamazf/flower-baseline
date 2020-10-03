@@ -1,8 +1,6 @@
 # Byte-compiled / optimized / DLL files
-src/configs/__pycache__/
-src/datasets/__pycache__/
-src/models/__pycache__/
-src/modules/__pycache__/
-src/test_script.py
-src_tensorflow/models/__pycache__/
-src_tensorflow/configs/__pycache__/
+ __pycache__/
+ *.pyc
+
+src/data
+src/test_*.py
