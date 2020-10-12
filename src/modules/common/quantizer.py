@@ -27,16 +27,16 @@ def bit_quantization(weights, bits):
     min_value = weights.min()
     max_value = weights.max()
     # bin count
-    n_bins = (2**bits) + 1
+    n_bins = (2**bits)
     # create bins / intervals for quantization
-    bins = np.linspace(min_value, max_value+1, num=n_bins)
-    # digitize to bins and change datatype
-    indices_array = np.digitize(weights, bins) - 1
+    bins = np.linspace(min_value, max_value, num=n_bins)
+    # get binned version
+    binned_weights = np.abs(bins.reshape(len(bins),1) - weights).argmin(axis=0)
     # create the bit format
     bit_format = '{:0' + str(bits) + 'b}'
     # convert to bit representation
     bit_representation = [
-        bit_format.format(value) for value in indices_array
+        bit_format.format(x) for x in binned_weights
     ]
     # return the results
     return min_value, max_value, bit_representation
@@ -48,8 +48,12 @@ def bit_quantization(weights, bits):
 #                                                                            #
 #****************************************************************************#
 def bit_dequantization(min_value, max_value, bit_repr, bits):
-    levels = np.linspace(min_value, max_value, num = 2**bits)
-    dequantized = [levels[int(bit_repr[i:i+bits], 2)] for i in range(0, len(bit_repr), bits)]
+    # bin count
+    n_bins = (2**bits)
+    levels = np.linspace(min_value, max_value, num=n_bins)
+    dequantized = [
+        levels[int(bit_repr[i:i+bits], 2)] for i in range(0, len(bit_repr), bits)
+    ]
     return dequantized
 
 #****************************************************************************#
