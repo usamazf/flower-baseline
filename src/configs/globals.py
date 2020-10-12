@@ -21,7 +21,7 @@ def init( ):
 
     # define the id for the created training plan
     global USE_GPU
-    USE_GPU = False
+    USE_GPU = True
     
     # define if quantization should be used
     global QUANTIZE
@@ -29,7 +29,7 @@ def init( ):
     
     # define the quantization bits [only used if above flag is set to true]
     global Q_BITS
-    Q_BITS = 1
+    Q_BITS = 16
         
     #-------------------------------------------------------------------------------------------#
     #                                                                                           #

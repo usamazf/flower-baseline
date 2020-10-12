@@ -26,13 +26,17 @@ def bit_quantization(weights, bits):
     # get min and max values
     min_value = weights.min()
     max_value = weights.max()
+    # bin count
+    n_bins = (2**bits) + 1
     # create bins / intervals for quantization
-    levels = np.linspace(min_value, max_value, num = 2**bits)
+    bins = np.linspace(min_value, max_value+1, num=n_bins)
+    # digitize to bins and change datatype
+    indices_array = np.digitize(weights, bins) - 1
     # create the bit format
     bit_format = '{:0' + str(bits) + 'b}'
-    # find nearest values for the given weights array
+    # convert to bit representation
     bit_representation = [
-        bit_format.format((np.abs(levels-value)).argmin()) for value in weights
+        bit_format.format(value) for value in indices_array
     ]
     # return the results
     return min_value, max_value, bit_representation
@@ -79,6 +83,20 @@ def quantize(weights: fl.common.Weights, bits: int=1) -> fl.common.Weights:
     # time the quantization process
     quant_begin = timeit.default_timer()
     
+    # numpy has built in type for 16-bit floats
+    if bits == 16:
+        # we have built in function for this
+        q_weights = [p_array.astype(np.float16) for p_array in weights]
+        
+        # time the method execution
+        quant_duration = timeit.default_timer() - quant_begin
+    
+        # print the processing time to console
+        print("Quantization process took:", quant_duration)
+        
+        # finally return all results for transmission
+        return q_weights
+    
     # flatten all the numpy arrays
     flat_weights = [np_array.flatten() for np_array in weights]
 
@@ -101,11 +119,11 @@ def quantize(weights: fl.common.Weights, bits: int=1) -> fl.common.Weights:
         bin_N_bit = bit_format.format(binary_rep[i:i+BT_COL])
         numbers.append(int(bin_N_bit, 2))
     
-    # time the method execution
-    quant_duration = timeit.default_timer() - quant_begin
-    
     # create numpy ndarray to return results
     npArray = np.array(numbers, dtype=DT_TYP)
+    
+    # time the method execution
+    quant_duration = timeit.default_timer() - quant_begin
     
     # print the processing time to console
     print("Quantization process took:", quant_duration)
@@ -124,6 +142,20 @@ def dequantize(dummy_model, weights: fl.common.Weights, bits: int=1) -> fl.commo
     # time the dequantization process
     dequant_begin = timeit.default_timer()
     
+    # numpy has built in type for 16-bit floats
+    if bits == 16:
+        # we have built in function for this
+        deq_weights = [p_array.astype(np.float32) for p_array in weights]
+        
+        # time the method execution
+        dequant_duration = timeit.default_timer() - dequant_begin
+    
+        # print the processing time to console
+        print("Dequantization process took:", dequant_duration)
+        
+        # finally return the dequantized weights
+        return deq_weights
+
     # expand the values
     min_value = float(weights[0][0])
     max_value = float(weights[0][1])
@@ -151,6 +183,7 @@ def dequantize(dummy_model, weights: fl.common.Weights, bits: int=1) -> fl.commo
     # time the method execution
     dequant_duration = timeit.default_timer() - dequant_begin
     
+    # print the processing time to console
     print("Dequantization process took:", dequant_duration)
     
     # finally return the dequantized weights

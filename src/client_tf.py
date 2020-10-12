@@ -66,9 +66,19 @@ class TfKerasClient(fl.client.KerasClient):
             batch_size=int(config["batch_size"]),
             epochs=int(config["epochs"]),
         )
+        
+        # Get weights from the model
+        weights_prime: Weights = self.model.get_weights()
+        
+        # Check if quantization is requested
+        if glb.QUANTIZE:
+            weights_prime: Weights = modules.quantize(
+                weights=weights_prime, 
+                bits=glb.Q_BITS
+            )
 
         # Return the refined weights and the number of examples used for training
-        return self.model.get_weights(), len(self.x_train), len(self.x_train)
+        return weights_prime, len(self.x_train), len(self.x_train)
 
     def evaluate(
         self, weights: Weights, config: Dict[str, str]

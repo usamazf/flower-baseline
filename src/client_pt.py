@@ -77,17 +77,18 @@ class PyTorchClient(fl.client.Client):
             self.trainset, batch_size=batch_size, shuffle=True
         )
         modules.pt_train(self.model, trainloader, epochs=epochs, device=DEVICE)
-
-        # Return the refined weights and the number of examples used for training
+        
+        # Get weights from the model
         weights_prime: Weights = self.model.get_weights()
         
-        # check if quantization is requested
+        # Check if quantization is requested
         if glb.QUANTIZE:
             weights_prime: Weights = modules.quantize(
                 weights=weights_prime, 
                 bits=glb.Q_BITS
             )
         
+        # Return the refined weights and the number of examples used for training
         params_prime = fl.common.weights_to_parameters(weights_prime)
         num_examples_train = len(self.trainset)
         fit_duration = timeit.default_timer() - fit_begin
