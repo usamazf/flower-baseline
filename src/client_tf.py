@@ -65,6 +65,7 @@ class TfKerasClient(fl.client.KerasClient):
             self.y_train,
             batch_size=int(config["batch_size"]),
             epochs=int(config["epochs"]),
+            learning_rate=float(config["learning_rate"]),
         )
         
         # Get weights from the model
@@ -126,10 +127,10 @@ def main() -> None:
     keras_client = TfKerasClient(args.cid, model, xy_train, xy_test)
     client = fl.client.keras_client.KerasClientWrapper(keras_client)
     
-    #try:
-    fl.client.start_client(args.server_address, client)
-    #except:
-    #    print("Either something went wrong or server finished execution!!")
+    try:
+        fl.client.start_client(args.server_address, client)
+    except:
+        print("Either something went wrong or server finished execution!!")
 
 
 if __name__ == "__main__":

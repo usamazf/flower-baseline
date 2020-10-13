@@ -68,6 +68,7 @@ class PyTorchClient(fl.client.Client):
         # Get training config
         epochs = int(config["epochs"])
         batch_size = int(config["batch_size"])
+        learning_rate = float(config["learning_rate"])
         
         # Set model parameters
         self.model.set_weights(weights)
@@ -76,7 +77,13 @@ class PyTorchClient(fl.client.Client):
         trainloader = torch.utils.data.DataLoader(
             self.trainset, batch_size=batch_size, shuffle=True
         )
-        modules.pt_train(self.model, trainloader, epochs=epochs, device=DEVICE)
+        modules.pt_train(
+            net=self.model, 
+            trainloader=trainloader, 
+            epochs=epochs, 
+            learning_rate=learning_rate, 
+            device=DEVICE
+        )
         
         # Get weights from the model
         weights_prime: Weights = self.model.get_weights()

@@ -16,11 +16,12 @@ def train(net,
           trainloader: torch.utils.data.DataLoader,
           epochs: int,
           device: torch.device,  # pylint: disable=no-member
+          learning_rate: float,
          ) -> None:
     """Train the network."""
     # Define loss and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
 
     print(f"Training {epochs} epoch(s) w/ {len(trainloader)} batches each")
 

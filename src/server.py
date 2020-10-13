@@ -111,6 +111,7 @@ def fit_config(rnd: int) -> Dict[str, str]:
         "epoch_global": str(rnd),
         "epochs": str(1),
         "batch_size": str(32),
+        "learning_rate": str(0.001),
     }
     return config
 

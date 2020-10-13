@@ -149,8 +149,10 @@ class Net():
     def build_model(self, seed, input_shape) -> tf.keras.Model:
         # create model instance
         model = SimpleCNN(input_shape=input_shape, seed=seed)
+        # create optimizer
+        optim = tf.keras.optimizers.SGD(learning_rate=self.lr_scheduler)
         # compile this model
-        model.compile(optimizer='sgd',
+        model.compile(optimizer=optim,
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
         # initialize model weights
@@ -158,7 +160,11 @@ class Net():
         # return newly built model
         return model
     
-    def fit(self, x_train, y_train, batch_size, epochs) -> None:
+    def lr_scheduler(self):
+        return self.learning_rate
+    
+    def fit(self, x_train, y_train, batch_size, epochs, learning_rate) -> None:
+        self.learning_rate = learning_rate
         self.model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
     
     def evaluate(
