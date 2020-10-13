@@ -150,7 +150,7 @@ class Net():
         # create model instance
         model = SimpleCNN(input_shape=input_shape, seed=seed)
         # create optimizer
-        optim = tf.keras.optimizers.SGD(learning_rate=self.lr_scheduler)
+        optim = tf.keras.optimizers.SGD(learning_rate=self.lr_scheduler, momentum=0.9)
         # compile this model
         model.compile(optimizer=optim,
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
