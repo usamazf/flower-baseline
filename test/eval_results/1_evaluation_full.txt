@@ -12,11 +12,11 @@ Meta Information:
 
 
 Sent data size in bytes:
-     1-bit Quantize     7880
-     4-bit Quantize     31136
-     8-bit Quantize     62136
-    16-bit Quantize     125292
-    Full Precision      249304     
+     1-bit Quantize       7880  [~   7 KB]
+     4-bit Quantize      31136  [~  31 KB]
+     8-bit Quantize      62136  [~  62 KB]
+    16-bit Quantize     125292  [~ 125 KB]
+    Full Precision      249304  [~ 249 KB]  
 
 
 Observed Results:
@@ -27,7 +27,7 @@ Observed Results:
     PyTorch  8-bit          66.50               543.97
     PyTorch 16-bit          65.75               567.20
 
-    Tensorflow Normal       
-    Tensorflow  4-bit       
-    Tensorflow  8-bit       
-    Tensorflow 16-bit       
+    Tensorflow Normal       39.79               402.67
+    Tensorflow  4-bit       18 ~ 34             IN-COMPLETE                    
+    Tensorflow  8-bit       45.60               418.05
+    Tensorflow 16-bit       47.40               401.76
