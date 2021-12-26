@@ -1,3 +1,8 @@
+#----------------------------------------------------------------------------#
+#                                                                            #
+#   I M P O R T     G L O B A L     L I B R A R I E S                        #
+#                                                                            #
+#----------------------------------------------------------------------------#
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -55,8 +60,21 @@ connected to the server. `min_available_clients` must be set to a value larger
 than or equal to the values of `min_fit_clients` and `min_eval_clients`.
 """
 
+#----------------------------------------------------------------------------#
+#                                                                            #
+#   I M P O R T     L O C A L     L I B R A R I E S                          #
+#                                                                            #
+#----------------------------------------------------------------------------#
+import modules
 
-class FederatedAverage(Strategy):
+#****************************************************************************#
+#                                                                            #
+#   Description:                                                             #
+#   extend the strategy base class to implement the federated averaging      #
+#   algorithm that uses quantization                                         #
+#                                                                            #
+#****************************************************************************#
+class FederatedAverage_Q(Strategy):
     """Configurable FedAvg strategy implementation."""
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
@@ -75,6 +93,7 @@ class FederatedAverage(Strategy):
         accept_failures: bool = True,
         initial_parameters: Optional[Parameters] = None,
         dummy_model = None,
+        quantization_bits = 64,
     ) -> None:
         """Federated Averaging strategy.
 
@@ -123,6 +142,7 @@ class FederatedAverage(Strategy):
         self.initial_parameters = initial_parameters
         # a dummy model used to determine dimensions of weights vector if quantization is used
         self.dummy_model = dummy_model
+        self.q_bits = quantization_bits
 
     def __repr__(self) -> str:
         rep = f"FedAvg(accept_failures={self.accept_failures})"
@@ -146,7 +166,6 @@ class FederatedAverage(Strategy):
         initial_parameters = self.initial_parameters
         self.initial_parameters = None  # Don't keep initial parameters in memory
         if isinstance(initial_parameters, list):
-            log(WARNING, DEPRECATION_WARNING_INITIAL_PARAMETERS)
             initial_parameters = weights_to_parameters(weights=initial_parameters)
         return initial_parameters
 
@@ -228,14 +247,14 @@ class FederatedAverage(Strategy):
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Aggregate fit results using weighted average."""
         if not results:
-            return None, {}
+            return None
         # Do not aggregate if there are failures and failures are not accepted
         if not self.accept_failures and failures:
-            return None, {}
+            print(failures)
+            return None
         # Convert results
         weights_results = [
-            (parameters_to_weights(fit_res.parameters), fit_res.num_examples)
-            for client, fit_res in results
+            (modules.dequantize(self.dummy_model, parameters_to_weights(fit_res.parameters), self.q_bits), fit_res.num_examples) for client, fit_res in results
         ]
         return weights_to_parameters(aggregate(weights_results)), {}
 

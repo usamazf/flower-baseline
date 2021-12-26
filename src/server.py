@@ -10,7 +10,7 @@ import torch
 import torchvision
 
 import flwr as fl
-from strategy.fedavg import FederatedAverage
+from strategy import get_strategy
 
 #----------------------------------------------------------------------------#
 #                                                                            #
@@ -70,6 +70,42 @@ def main() -> None:
         help="Minimum number of available clients required for sampling (default: 2)",
     )
     parser.add_argument(
+        "--strategy",
+        type=str,
+        default="FedAvg",
+        help="Aggregation strategy (default: FedAvg)",
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=1,
+        help="Number of local epochs to run on each client before aggregation (default: 1)",
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=32,
+        help="Batch size to be used by each worker (default: 32)",
+    )
+    parser.add_argument(
+        "--learning_rate",
+        type=float,
+        default=0.001,
+        help="Learning rate to be used by each worker (default: 0.001)",
+    )
+    parser.add_argument(
+        "--quantize",
+        type=bool,
+        default=False,
+        help="Use quantization (default: False)",
+    )
+    parser.add_argument(
+        "--quantize_bits",
+        type=int,
+        default=64,
+        help="Quantization bits (default: 64)",
+    )
+    parser.add_argument(
         "--log_host", type=str, help="Logserver address (no default)",
     )
     args = parser.parse_args()
@@ -82,14 +118,26 @@ def main() -> None:
 
     # Create client_manager, strategy, and server
     client_manager = fl.server.SimpleClientManager()
-    strategy = FederatedAverage(
+    aggregation_strategy = get_strategy(
+        strategy_name = args.strategy,
         fraction_fit=args.sample_fraction,
         min_fit_clients=args.min_sample_size,
         min_available_clients=args.min_num_clients,
         eval_fn=get_eval_fn(testset),
-        on_fit_config_fn=fit_config,
+        on_fit_config_fn=get_fit_config_fn(args),
         dummy_model = models.load_model(model_name=glb.MODEL, framework="PT"),        
+        quantize = args.quantize,
+        quantization_bits=args.quantize_bits,
     )
+    
+    #FederatedAverage(
+    #    fraction_fit=args.sample_fraction,
+    #    min_fit_clients=args.min_sample_size,
+    #    min_available_clients=args.min_num_clients,
+    #    eval_fn=get_eval_fn(testset),
+    #    on_fit_config_fn=fit_config,
+    #    dummy_model = models.load_model(model_name=glb.MODEL, framework="PT"),        
+    #)
     #strategy = fl.server.strategy.DefaultStrategy(
     #    fraction_fit=args.sample_fraction,
     #    min_fit_clients=args.min_sample_size,
@@ -97,31 +145,34 @@ def main() -> None:
     #    eval_fn=get_eval_fn(testset),
     #    on_fit_config_fn=fit_config,
     #)
-    server = fl.server.Server(client_manager=client_manager, strategy=strategy)
+    server = fl.server.Server(client_manager=client_manager, strategy=aggregation_strategy)
 
     # Run server
     fl.server.start_server(
         args.server_address, server, config={"num_rounds": args.rounds},
     )
 
-
-def fit_config(rnd: int) -> Dict[str, str]:
-    """Return a configuration with static batch size and (local) epochs."""
-    config = {
-        "epoch_global": str(rnd),
-        "epochs": str(1),
-        "batch_size": str(32),
-        "learning_rate": str(0.001),
-    }
-    return config
-
+def get_fit_config_fn(args: Dict) -> Callable[[int], Optional[Dict[str, str]]]:
+    """Return a callable configuration function to fetch fit configurations."""
+    # create on fit configuration function
+    def fit_config(rnd: int) -> Dict[str, str]:
+        """Return a configuration with static batch size and (local) epochs."""
+        config = {
+            "epoch_global": str(rnd),
+            "epochs": str(args.epochs),
+            "batch_size": str(args.batch_size),
+            "learning_rate": str(args.learning_rate),
+        }
+        return config
+    
+    return fit_config
 
 def get_eval_fn(
     testset: torchvision.datasets.CIFAR10,
-) -> Callable[[fl.common.Weights], Optional[Tuple[float, float]]]:
+) -> Callable[[fl.common.Weights], Optional[Tuple[float, Dict]]]:
     """Return an evaluation function for centralized evaluation."""
 
-    def evaluate(weights: fl.common.Weights) -> Optional[Tuple[float, float]]:
+    def evaluate(weights: fl.common.Weights) -> Optional[Tuple[float, Dict]]:
         """Use the entire CIFAR-10 test set for evaluation."""
         model = models.load_model(glb.MODEL)
         model.set_weights(weights)

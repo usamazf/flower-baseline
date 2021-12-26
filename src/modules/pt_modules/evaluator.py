@@ -33,4 +33,4 @@ def test(net,
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     accuracy = correct / total
-    return loss, accuracy
+    return loss, {"accuracy": accuracy}
