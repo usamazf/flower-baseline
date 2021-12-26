@@ -50,6 +50,7 @@ class FederatedAverage(Strategy):
         on_fit_config_fn: Optional[Callable[[int], Dict[str, str]]] = None,
         on_evaluate_config_fn: Optional[Callable[[int], Dict[str, str]]] = None,
         accept_failures: bool = True,
+        initial_parameters: Optional[Parameters] = None,
         dummy_model = None,
      ) -> None:
         super().__init__()
@@ -62,6 +63,7 @@ class FederatedAverage(Strategy):
         self.on_fit_config_fn = on_fit_config_fn
         self.on_evaluate_config_fn = on_evaluate_config_fn
         self.accept_failures = accept_failures
+        self.initial_parameters = initial_parameters
         # a dummy model used to determine dimensions of weights vector if quantization is used
         self.dummy_model = dummy_model
     
@@ -75,7 +77,18 @@ class FederatedAverage(Strategy):
         """Use a fraction of available clients for evaluation."""
         num_clients = int(num_available_clients * self.fraction_eval)
         return max(num_clients, self.min_eval_clients), self.min_available_clients
-    
+
+    def initialize_parameters(
+        self, client_manager: ClientManager
+    ) -> Optional[Parameters]:
+        """Initialize global model parameters."""
+        initial_parameters = self.initial_parameters
+        self.initial_parameters = None  # Don't keep initial parameters in memory
+        if isinstance(initial_parameters, list):
+            log(WARNING, DEPRECATION_WARNING_INITIAL_PARAMETERS)
+            initial_parameters = weights_to_parameters(weights=initial_parameters)
+        return initial_parameters
+        
     def configure_fit(
         self, rnd: int, weights: Weights, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
