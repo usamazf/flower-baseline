@@ -96,6 +96,7 @@ class PyTorchClient(fl.client.Client):
         params_prime = fl.common.weights_to_parameters(weights_prime)
         num_examples_train = len(self.trainset)
         fit_duration = timeit.default_timer() - fit_begin
+        print("CLIENT FINISHED SUCCESSFULLY")
         return FitRes(
             parameters=params_prime,
             num_examples=num_examples_train,
