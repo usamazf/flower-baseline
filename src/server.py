@@ -17,7 +17,6 @@ from strategy import get_strategy
 #   I M P O R T     L O C A L     L I B R A R I E S                          #
 #                                                                            #
 #----------------------------------------------------------------------------#
-from configs import globals as glb
 import modules
 import models
 import datasets
@@ -28,7 +27,6 @@ import datasets
 #                                                                            #
 #----------------------------------------------------------------------------#
 DEFAULT_SERVER_ADDRESS = "127.0.0.1:8080"
-DEVICE = torch.device("cuda:0" if glb.USE_GPU else "cpu")
 
 #****************************************************************************#
 #                                                                            #
@@ -70,6 +68,24 @@ def main() -> None:
         help="Minimum number of available clients required for sampling (default: 2)",
     )
     parser.add_argument(
+        "--model",
+        type=str,
+        default="simple-cnn",
+        help="Model to use for training (default: simple-cnn)",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="cifar-10",
+        help="Dataset to use fro training (default: cifar-10)",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="CPU",
+        help="Device to run the model on (default: CPU)",
+    )
+    parser.add_argument(
         "--strategy",
         type=str,
         default="FedAvg",
@@ -109,12 +125,15 @@ def main() -> None:
         "--log_host", type=str, help="Logserver address (no default)",
     )
     args = parser.parse_args()
-
+    
+    # check for runnable device
+    DEVICE = torch.device("cuda:0" if args.device == "GPU" else "cpu")
+    
     # Configure logger
     fl.common.logger.configure("server", host=args.log_host)
 
     # Load evaluation data
-    _, testset = datasets.load_data(dataset_name=glb.DATASET, framework="PT")
+    _, testset = datasets.load_data(dataset_name=args.dataset, framework="PT")
 
     # Create client_manager, strategy, and server
     client_manager = fl.server.SimpleClientManager()
@@ -123,28 +142,13 @@ def main() -> None:
         fraction_fit=args.sample_fraction,
         min_fit_clients=args.min_sample_size,
         min_available_clients=args.min_num_clients,
-        eval_fn=get_eval_fn(testset),
+        eval_fn=get_eval_fn(model=args.model, testset=testset, device=DEVICE),
         on_fit_config_fn=get_fit_config_fn(args),
-        dummy_model = models.load_model(model_name=glb.MODEL, framework="PT"),        
+        dummy_model = models.load_model(model_name=args.model, framework="PT"),        
         quantize = args.quantize,
-        quantization_bits=args.quantize_bits,
+        quantize_bits=args.quantize_bits,
     )
     
-    #FederatedAverage(
-    #    fraction_fit=args.sample_fraction,
-    #    min_fit_clients=args.min_sample_size,
-    #    min_available_clients=args.min_num_clients,
-    #    eval_fn=get_eval_fn(testset),
-    #    on_fit_config_fn=fit_config,
-    #    dummy_model = models.load_model(model_name=glb.MODEL, framework="PT"),        
-    #)
-    #strategy = fl.server.strategy.DefaultStrategy(
-    #    fraction_fit=args.sample_fraction,
-    #    min_fit_clients=args.min_sample_size,
-    #    min_available_clients=args.min_num_clients,
-    #    eval_fn=get_eval_fn(testset),
-    #    on_fit_config_fn=fit_config,
-    #)
     server = fl.server.Server(client_manager=client_manager, strategy=aggregation_strategy)
 
     # Run server
@@ -162,24 +166,28 @@ def get_fit_config_fn(args: Dict) -> Callable[[int], Optional[Dict[str, str]]]:
             "epochs": str(args.epochs),
             "batch_size": str(args.batch_size),
             "learning_rate": str(args.learning_rate),
+            "quantize": str(args.quantize),
+            "quantize_bits": str(args.quantize_bits),
         }
         return config
     
     return fit_config
 
 def get_eval_fn(
-    testset: torchvision.datasets.CIFAR10,
+    testset: torchvision.datasets,
+    model: str,
+    device: str,
 ) -> Callable[[fl.common.Weights], Optional[Tuple[float, Dict]]]:
     """Return an evaluation function for centralized evaluation."""
 
     def evaluate(weights: fl.common.Weights) -> Optional[Tuple[float, Dict]]:
         """Use the entire CIFAR-10 test set for evaluation."""
-        model = models.load_model(glb.MODEL)
+        model = models.load_model(model)
         model.set_weights(weights)
-        model.to(DEVICE)
+        model.to(device)
         testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False)
         # using pytorch for central evaluation, can be tensorflow as well
-        return modules.pt_test(model, testloader, device=DEVICE) 
+        return modules.pt_test(model, testloader, device=device) 
 
     return evaluate
 

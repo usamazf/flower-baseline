@@ -93,7 +93,7 @@ class FederatedAverage_Q(Strategy):
         accept_failures: bool = True,
         initial_parameters: Optional[Parameters] = None,
         dummy_model = None,
-        quantization_bits = 64,
+        quantize_bits = 64,
     ) -> None:
         """Federated Averaging strategy.
 
@@ -142,7 +142,7 @@ class FederatedAverage_Q(Strategy):
         self.initial_parameters = initial_parameters
         # a dummy model used to determine dimensions of weights vector if quantization is used
         self.dummy_model = dummy_model
-        self.q_bits = quantization_bits
+        self.q_bits = quantize_bits
 
     def __repr__(self) -> str:
         rep = f"FedAvg(accept_failures={self.accept_failures})"

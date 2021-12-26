@@ -19,7 +19,7 @@ def get_strategy(
         on_fit_config_fn,
         dummy_model=None,
         quantize=False,
-        quantization_bits=64):
+        quantize_bits=64):
     
     if strategy_name == "FedAvg":
         # import the model from the local directory
@@ -40,6 +40,6 @@ def get_strategy(
                             eval_fn=eval_fn,
                             on_fit_config_fn=on_fit_config_fn,
                             dummy_model=dummy_model,
-                            quantization_bits=quantization_bits)
+                            quantize_bits=quantize_bits)
 
  

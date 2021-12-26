@@ -17,7 +17,6 @@ from flwr.common import EvaluateIns, EvaluateRes, FitIns, FitRes, ParametersRes,
 #   I M P O R T     L O C A L     L I B R A R I E S                          #
 #                                                                            #
 #----------------------------------------------------------------------------#
-from configs import globals as glb
 import models
 import datasets
 import modules
@@ -28,7 +27,6 @@ import modules
 #                                                                            #
 #----------------------------------------------------------------------------#
 DEFAULT_SERVER_ADDRESS = "127.0.0.1:8080"
-DEVICE = torch.device("cuda:0" if glb.USE_GPU else "cpu")
 
 #****************************************************************************#
 #                                                                            #
@@ -69,6 +67,8 @@ class PyTorchClient(fl.client.Client):
         epochs = int(config["epochs"])
         batch_size = int(config["batch_size"])
         learning_rate = float(config["learning_rate"])
+        quantize = bool(config["quantize"])
+        quantize_bits = int(config["quantize_bits"])
         
         # Set model parameters
         self.model.set_weights(weights)
@@ -89,11 +89,8 @@ class PyTorchClient(fl.client.Client):
         weights_prime: Weights = self.model.get_weights()
         
         # Check if quantization is requested
-        if glb.QUANTIZE:
-            weights_prime: Weights = modules.quantize(
-                weights=weights_prime, 
-                bits=glb.Q_BITS
-            )
+        if quantize:
+            weights_prime: Weights = modules.quantize(weights=weights_prime, bits=quantize_bits)
         
         # Return the refined weights and the number of examples used for training
         params_prime = fl.common.weights_to_parameters(weights_prime)
@@ -144,6 +141,24 @@ def main() -> None:
         "--cid", type=str, required=True, help="Client CID (no default)"
     )
     parser.add_argument(
+        "--model",
+        type=str,
+        default="simple-cnn",
+        help="Model to use for training (default: simple-cnn)",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="cifar-10",
+        help="Dataset to use fro training (default: cifar-10)",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="CPU",
+        help="Device to run the model on (default: CPU)",
+    )
+    parser.add_argument(
         "--log_host", type=str, help="Logserver address (no default)",
     )
     args = parser.parse_args()
@@ -151,10 +166,14 @@ def main() -> None:
     # Configure logger
     fl.common.logger.configure(f"client_{args.cid}", host=args.log_host)
 
+    # check for runnable device
+    global DEVICE
+    DEVICE = torch.device("cuda:0" if args.device == "GPU" else "cpu")
+    
     # Load model and data
-    model = models.load_model(model_name=glb.MODEL, framework="PT")
+    model = models.load_model(model_name=args.model, framework="PT")
     model.to(DEVICE)
-    trainset, testset = datasets.load_data(dataset_name=glb.DATASET, framework="PT")
+    trainset, testset = datasets.load_data(dataset_name=args.dataset, framework="PT")
 
     # Start client
     client = PyTorchClient(args.cid, model, trainset, testset)

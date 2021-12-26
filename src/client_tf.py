@@ -18,7 +18,6 @@ from flwr.common import Weights
 #   I M P O R T     L O C A L     L I B R A R I E S                          #
 #                                                                            #
 #----------------------------------------------------------------------------#
-from configs import globals as glb
 import models
 import datasets
 import modules
@@ -29,7 +28,6 @@ import modules
 #                                                                            #
 #----------------------------------------------------------------------------#
 DEFAULT_SERVER_ADDRESS = "127.0.0.1:8080"
-#DEVICE = torch.device("cuda:0" if glb.USE_GPU else "cpu")
 
 #****************************************************************************#
 #                                                                            #
@@ -58,25 +56,29 @@ class TfKerasClient(fl.client.KerasClient):
     def fit(self, weights: Weights, config: Dict[str, str]) -> Tuple[Weights, int, int]:
         # Use provided weights to update local model
         self.model.set_weights(weights)
+        
+        # Get training config
+        epochs = int(config["epochs"])
+        batch_size = int(config["batch_size"])
+        learning_rate = float(config["learning_rate"])
+        quantize = bool(config["quantize"])
+        quantize_bits = int(config["quantize_bits"])
 
         # Train the local model using local dataset
         self.model.fit(
             self.x_train,
             self.y_train,
-            batch_size=int(config["batch_size"]),
-            epochs=int(config["epochs"]),
-            learning_rate=float(config["learning_rate"]),
+            batch_size=batch_size,
+            epochs=epochs,
+            learning_rate=learning_rate,
         )
         
         # Get weights from the model
         weights_prime: Weights = self.model.get_weights()
         
         # Check if quantization is requested
-        if glb.QUANTIZE:
-            weights_prime: Weights = modules.quantize(
-                weights=weights_prime, 
-                bits=glb.Q_BITS
-            )
+        if quantize:
+            weights_prime: Weights = modules.quantize(weights=weights_prime, bits=quantize_bits)
 
         # Return the refined weights and the number of examples used for training
         return weights_prime, len(self.x_train), len(self.x_train)
@@ -112,6 +114,24 @@ def main() -> None:
         "--cid", type=str, required=True, help="Client CID (no default)"
     )
     parser.add_argument(
+        "--model",
+        type=str,
+        default="simple-cnn",
+        help="Model to use for training (default: simple-cnn)",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="cifar-10",
+        help="Dataset to use fro training (default: cifar-10)",
+    )
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="CPU",
+        help="Device to run the model on (default: CPU)",
+    )
+    parser.add_argument(
         "--log_host", type=str, help="Logserver address (no default)",
     )
     args = parser.parse_args()
@@ -120,8 +140,8 @@ def main() -> None:
     fl.common.logger.configure(f"client_{args.cid}", host=args.log_host)
 
     # Load model and data
-    model = models.load_model(model_name=glb.MODEL, framework="TF")
-    xy_train, xy_test = datasets.load_data(dataset_name=glb.DATASET, framework="TF")
+    model = models.load_model(model_name=args.model, framework="TF")
+    xy_train, xy_test = datasets.load_data(dataset_name=args.dataset, framework="TF")
 
     # Start client
     keras_client = TfKerasClient(args.cid, model, xy_train, xy_test)
