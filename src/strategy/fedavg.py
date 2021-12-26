@@ -87,7 +87,6 @@ class FederatedAverage(Strategy):
         initial_parameters = self.initial_parameters
         self.initial_parameters = None  # Don't keep initial parameters in memory
         if isinstance(initial_parameters, list):
-            log(WARNING, DEPRECATION_WARNING_INITIAL_PARAMETERS)
             initial_parameters = weights_to_parameters(weights=initial_parameters)
         return initial_parameters
     
@@ -104,7 +103,6 @@ class FederatedAverage(Strategy):
             return None
         loss, other = eval_res
         if isinstance(other, float):
-            print(DEPRECATION_WARNING)
             metrics = {"accuracy": other}
         else:
             metrics = other
