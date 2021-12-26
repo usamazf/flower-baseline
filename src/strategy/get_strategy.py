@@ -22,8 +22,7 @@ def get_strategy(
         quantize_bits=64):
     
     if strategy_name == "FedAvg":
-        # import the model from the local directory
-        if quantize:
+        if not quantize:
             from .strats.fedavg import FederatedAverage
             return FederatedAverage(
                             fraction_fit=fraction_fit,

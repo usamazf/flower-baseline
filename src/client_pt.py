@@ -67,7 +67,7 @@ class PyTorchClient(fl.client.Client):
         epochs = int(config["epochs"])
         batch_size = int(config["batch_size"])
         learning_rate = float(config["learning_rate"])
-        quantize = bool(config["quantize"])
+        quantize = True if config["quantize"].lower() in ["true"] else False
         quantize_bits = int(config["quantize_bits"])
         
         # Set model parameters
