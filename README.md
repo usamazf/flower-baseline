@@ -20,7 +20,7 @@ The detailed steps regarding installation of PyTorch and Tensorflow can be found
 Finally we are ready to install flower framework itself. Simply run
 
 ```bash
-pip install flower
+pip install flwr
 ```
 
 ## Running the code
