@@ -56,7 +56,7 @@ than or equal to the values of `min_fit_clients` and `min_eval_clients`.
 """
 
 
-class FedAvg(Strategy):
+class FederatedAverage(Strategy):
     """Configurable FedAvg strategy implementation."""
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
