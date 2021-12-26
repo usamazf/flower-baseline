@@ -76,7 +76,7 @@ class FederatedAverage(Strategy):
         num_clients = int(num_available_clients * self.fraction_eval)
         return max(num_clients, self.min_eval_clients), self.min_available_clients
     
-    def on_configure_fit(
+    def configure_fit(
         self, rnd: int, weights: Weights, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
         """Configure the next round of training."""
@@ -98,7 +98,7 @@ class FederatedAverage(Strategy):
         # Return client/config pairs
         return [(client, fit_ins) for client in clients]
   
-    def on_aggregate_fit(
+    def aggregate_fit(
         self,
         rnd: int,
         results: List[Tuple[ClientProxy, FitRes]],
@@ -130,7 +130,7 @@ class FederatedAverage(Strategy):
         """Always continue training."""
         return True
 
-    def on_configure_evaluate(
+    def configure_evaluate(
         self, rnd: int, weights: Weights, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, EvaluateIns]]:
         """Configure the next round of evaluation."""
@@ -161,7 +161,7 @@ class FederatedAverage(Strategy):
         # Return client/config pairs
         return [(client, evaluate_ins) for client in clients]
     
-    def on_aggregate_evaluate(
+    def aggregate_evaluate(
         self,
         rnd: int,
         results: List[Tuple[ClientProxy, EvaluateRes]],
