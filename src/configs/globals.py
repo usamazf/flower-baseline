@@ -6,10 +6,10 @@
 
 #----------------------------------------------------------------------------#
 #                                                                            #
-#   Define global parameters to be used through out the program              #
+#   Define global parameters and initialize them to default values.          #
 #                                                                            #
 #----------------------------------------------------------------------------#
-def init( ):
+def init( ): # setup default configurations
         
     # define the model to use for training
     global MODEL
@@ -21,7 +21,7 @@ def init( ):
 
     # define the id for the created training plan
     global USE_GPU
-    USE_GPU = True
+    USE_GPU = False
     
     # define if quantization should be used
     global QUANTIZE
@@ -41,3 +41,26 @@ def init( ):
     global MANUAL_SEED
     MANUAL_SEED = 42        
 
+#----------------------------------------------------------------------------#
+#                                                                            #
+#   Setup global parameters according to the provided values.                #
+#                                                                            #
+#----------------------------------------------------------------------------#
+def setup(model, dataset, use_gpu, quantize, q_bits, manual_seed):   
+    global MODEL
+    MODEL = model
+    
+    global DATASET
+    DATASET = dataset
+
+    global USE_GPU
+    USE_GPU = use_gpu
+    
+    global QUANTIZE
+    QUANTIZE = quantize
+    
+    global Q_BITS
+    Q_BITS = q_bits
+
+    global MANUAL_SEED
+    MANUAL_SEED = manual_seed
