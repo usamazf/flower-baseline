@@ -182,12 +182,12 @@ def get_eval_fn(
 
     def evaluate(weights: fl.common.Weights) -> Optional[Tuple[float, Dict]]:
         """Use the entire CIFAR-10 test set for evaluation."""
-        model = models.load_model(model)
-        model.set_weights(weights)
-        model.to(device)
+        tr_model = models.load_model(model)
+        tr_model.set_weights(weights)
+        tr_model.to(device)
         testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False)
         # using pytorch for central evaluation, can be tensorflow as well
-        return modules.pt_test(model, testloader, device=device) 
+        return modules.pt_test(tr_model, testloader, device=device) 
 
     return evaluate
 
