@@ -13,6 +13,8 @@ from flwr.common import (
     EvaluateRes,
     FitIns,
     FitRes,
+    Parameters,
+    Scalar,
     Weights,
     parameters_to_weights,
     weights_to_parameters,
@@ -88,7 +90,26 @@ class FederatedAverage(Strategy):
             log(WARNING, DEPRECATION_WARNING_INITIAL_PARAMETERS)
             initial_parameters = weights_to_parameters(weights=initial_parameters)
         return initial_parameters
-        
+    
+    def evaluate(
+        self, parameters: Parameters
+    ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
+        """Evaluate model parameters using an evaluation function."""
+        if self.eval_fn is None:
+            # No evaluation function provided
+            return None
+        weights = parameters_to_weights(parameters)
+        eval_res = self.eval_fn(weights)
+        if eval_res is None:
+            return None
+        loss, other = eval_res
+        if isinstance(other, float):
+            print(DEPRECATION_WARNING)
+            metrics = {"accuracy": other}
+        else:
+            metrics = other
+        return loss, metrics
+
     def configure_fit(
         self, rnd: int, weights: Weights, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
@@ -192,10 +213,3 @@ class FederatedAverage(Strategy):
                 for _, evaluate_res in results
             ]
         )
-    
-    def evaluate(self, weights: Weights) -> Optional[Tuple[float, float]]:
-        """Evaluate the current model weights."""
-        if self.eval_fn is None:
-            # No evaluation function provided
-            return None
-        return self.eval_fn(weights)
