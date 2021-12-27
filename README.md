@@ -55,8 +55,8 @@ Or we can use the ```run_server.sh``` script located under ```src``` folder and 
 | min_sample_size | 2 | int | (0, min_num_clients] | This flag specifies minimum # of clients that should be sampled for any round (training or evaluation). |
 | sample_fraction | 1.0 | float | (0, 1] | Specifies the fraction of clients to use for fit / evaluate. |
 | model | simple-cnn | str | mlp-mnist, simple-cnn | Model to use for training. |
-| dataset | simple-cnn | str | mlp-mnist, simple-cnn | Model to use for training. |
-| device | CPU | str | CPU, GPU | Model to use for training. |
+| dataset | cifar-10 | str |cifar-10, mnist | Dataset to use fro training. |
+| device | CPU | str | CPU, GPU | Device to run the model on. |
 | strategy | FedAvg | str | FedAvg | Aggregation strategy. |
 | epochs | 1 | int | (1, +inf) | Number of local epochs to run on each client before aggregation. |
 | batch_size | 32 | int | (1, +inf) | Batch size to be used by each worker. |
