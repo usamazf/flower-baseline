@@ -1,4 +1,4 @@
-# flower-baseline
+# Introduction
 A baseline implementation of Federated Learning environment using flower framework. Extending the existing example code provided by flower and modifying it to our needs in order to implement advanced functionalities. Will be extended in our future research.
 
 ## Pre-requisites
@@ -44,6 +44,11 @@ Or we can use the ```run_server.sh``` script located under ```src``` folder and 
 ```bash
 ./run_server.sh
 ```
+
+#### Server Arguments
+
+| Flag | Default | Possible Values | Description |
+| :---: | :---: | :---: | :--: |
 
 ### Starting the Federated Workers
 
