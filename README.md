@@ -28,7 +28,7 @@ pip install flwr
 Running the code has two distinct parts i.e. starting up the server and initiating the clients. Each of these steps are explained below.
 
 ### Staring the Federated Server
-First thing we need to do is to run the Federated Server. This can be done by either directly running the ```server.py``` file (with appropriate arguments) located under the ```src``` folder using:
+First thing we need to do is to run the Federated Server. This can be done by either directly running the ```server.py``` file (with appropriate arguments, all possible arguments are discusses in next section) located under the ```src``` folder using:
 
 ```bash
 python server.py \
@@ -47,13 +47,16 @@ Or we can use the ```run_server.sh``` script located under ```src``` folder and 
 
 #### Server Arguments
 
-| Flag | Default Values | Possible Values | Description |
-| ----- | :----: | :----: | ------ |
-| --server_address | 127.0.0.1:8080 | server_ip:available_port | Use this flag to setup listen interface for server module. |
-| --rounds | 1 | any integer > 0 | Use this flage to specify number of rounds of federated training to run. |
-| --min_num_clients | 2 | any integer > 1 | Use this flag to tell the server minimum number of clients it should wait for before beginning the training. |
-| --min_sample_size | 2 | any integer > 0 && < min_num_clients | This flag specifies minimum # of clients that should be sampled for any round (training or evaluation). |
-| --sample_fraction | 1.0 | any float > 0 && <= 1.0 | Specifies the fraction of clients to use for fit / evaluate. |
+| Argument Flag | Default Value | Possible Values | Description |
+| ---- | :----: | :----: | -------- |
+| server_address | 127.0.0.1:8080 | server_ip:available_port | Use this flag to setup listen interface for server module. |
+| rounds | 1 | any integer > 0 | Use this flage to specify number of rounds of federated training to run. |
+| min_num_clients | 2 | any integer > 1 | Use this flag to tell the server minimum number of clients it should wait for before beginning the training. |
+| min_sample_size | 2 | any integer > 0 && < min_num_clients | This flag specifies minimum # of clients that should be sampled for any round (training or evaluation). |
+| sample_fraction | 1.0 | any float > 0 && <= 1.0 | Specifies the fraction of clients to use for fit / evaluate. |
+| model | simple-cnn | mlp-mnist, simple-cnn | Model to use for training. |
+
+
 
 ### Starting the Federated Workers
 
