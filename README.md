@@ -47,8 +47,8 @@ Or we can use the ```run_server.sh``` script located under ```src``` folder and 
 
 #### Server Arguments
 
-| Flag | Default | Possible Values | Description |
-| :---: | :---: | :---: | :--: |
+| Flag | Default Values | Possible Values | Description |
+| --- | --- | --- | --- |
 
 ### Starting the Federated Workers
 
