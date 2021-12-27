@@ -47,13 +47,13 @@ Or we can use the ```run_server.sh``` script located under ```src``` folder and 
 
 #### Server Arguments
 
-| Argument Flag | Default Value | Possible Values | Description |
-| ---- | :----: | :----: | -------- |
-| server_address | 127.0.0.1:8080 | server_ip:available_port | Use this flag to setup listen interface for server module. |
-| rounds | 1 | any integer > 0 | Use this flage to specify number of rounds of federated training to run. |
-| min_num_clients | 2 | any integer > 1 | Use this flag to tell the server minimum number of clients it should wait for before beginning the training. |
-| min_sample_size | 2 | any integer > 0 && < min_num_clients | This flag specifies minimum # of clients that should be sampled for any round (training or evaluation). |
-| sample_fraction | 1.0 | any float > 0 && <= 1.0 | Specifies the fraction of clients to use for fit / evaluate. |
+| Argument | Default | Type | Values | Description |
+| ---- | :----: | :--: | :----: | -------- |
+| server_address | 127.0.0.1:8080 | str | server_ip:available_port | Use this flag to setup listen interface for server module. |
+| rounds | 1 | int | (0, +inf) | Use this flage to specify number of rounds of federated training to run. |
+| min_num_clients | 2 | int | (1, +inf) | Use this flag to tell the server minimum number of clients it should wait for before beginning the training. |
+| min_sample_size | 2 | int | (0, min_num_clients] | This flag specifies minimum # of clients that should be sampled for any round (training or evaluation). |
+| sample_fraction | 1.0 | float | (0, 1] | Specifies the fraction of clients to use for fit / evaluate. |
 | model | simple-cnn | mlp-mnist, simple-cnn | Model to use for training. |
 
 
