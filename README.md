@@ -48,7 +48,7 @@ Or we can use the ```run_server.sh``` script located under ```src``` folder and 
 #### Server Arguments
 
 | Flag | Default Values | Possible Values | Description |
-| --- | --- | --- | --- |
+| ----- | :----: | :----: | ------ |
 | --server_address | 127.0.0.1:8080 | server_ip:available_port | Use this flag to setup listen interface for server module. |
 | --rounds | 1 | any integer > 0 | Use this flage to specify number of rounds of federated training to run. |
 | --min_num_clients | 2 | any integer > 1 | Use this flag to tell the server minimum number of clients it should wait for before beginning the training. |
