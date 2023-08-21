@@ -1,1 +1,3 @@
-from .load_model import load_model as load_model
+"""Module initializer."""
+
+from .model_loader import load_model

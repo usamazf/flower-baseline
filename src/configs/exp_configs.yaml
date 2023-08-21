@@ -1,0 +1,28 @@
+SERVER_CONFIGS:
+    SERVER_TYPE: NORMAL             # Options: [NORMAL]
+    RUN_DEVICE: auto                # Options: [auto, cpu, cuda]
+    AGGREGATE_STRAT: FEDAVG         # Options: [FEDAVG]
+    EVALUATE_SERVER: True           # Options: [True, False]
+    NUM_TRAIN_ROUND: 10
+    SAMPLE_FRACTION: 1.0
+    MIN_SAMPLE_SIZE: 2
+    MIN_NUM_CLIENTS: 2
+
+CLIENT_CONFIGS:
+    RUN_DEVICE: auto                # Options: [auto, cpu, cuda]
+    LOCAL_EPCH: 1
+    BATCH_SIZE: 64
+    LEARN_RATE: 0.001
+    OPTIMIZER: ADAM                 # Options: [ADAM, SGD]
+    CRITERION: CROSSENTROPY         # Options: [CROSSENTROPY, NLLL]
+
+DATASET_CONFIGS:
+    DATASET_NAME: CIFAR-10          # Options: [MNIST, EMNIST, CIFAR-10]
+    DATASET_PATH: ./temp/data
+    SPLIT: True
+    DIRICHLET_ALPHA: 100.0
+    RANDOM_SEED: 333
+
+MODEL_CONFIGS:
+    MODEL_NAME: SIMPLE-CNN          # Options: [SIMPLE-MLP, SIMPLE-CNN]
+    NUM_CLASSES: 10

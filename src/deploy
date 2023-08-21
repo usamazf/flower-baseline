@@ -1,8 +1,0 @@
-#!/bin/bash
-
-#mpirun -d --prefix /opt/openmpi/openmpi-4.0.1/ --hostfile hosts -np 12 --mca btl tcp,vader,self --mca btl_tcp_if_include 166.111.130.0/24 bash 3_startScript
-#mpirun -d --prefix /opt/openmpi/openmpi-4.0.1/ --hostfile hosts -np 12 --mca btl tcp,vader,self --mca btl_tcp_if_include 192.168.15.0/24 bash 3_startScript
-#mpirun -d --prefix /opt/openmpi/openmpi-4.0.1/ --hostfile hosts -np 8 --mca btl tcp,vader,self --mca btl_tcp_if_include 12.12.10.0/24 bash 3_startScript
-#mpirun -d --prefix /opt/openmpi/openmpi-4.0.1/ --map-by node --hostfile hosts -np 8 --mca btl tcp,vader,self --mca btl_tcp_if_include 12.12.12.0/24 bash 3_startScript
-mpirun -d --prefix /opt/openmpi/openmpi-4.0.1/ --map-by node --hostfile hosts -np 4 --mca btl tcp,vader,self --mca btl_tcp_if_include 12.12.10.0/24 bash run-clients_pt.sh
-

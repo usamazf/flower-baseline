@@ -1,1 +1,3 @@
-from .load_data import load_data as load_data
+"""Module initializer."""
+
+from .data_loader import load_data, load_and_fetch_split

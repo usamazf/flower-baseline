@@ -1,1 +1,3 @@
-from .get_strategy import get_strategy as get_strategy
+"""Module initializer."""
+
+from .get_strategy import get_strategy
