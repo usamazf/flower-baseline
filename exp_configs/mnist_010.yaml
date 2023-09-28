@@ -1,0 +1,28 @@
+SERVER_CONFIGS:
+    RUN_DEVICE: auto                # Options: [auto, cpu, cuda]
+    AGGREGATE_STRAT: FEDAVG         # Options: [FEDAVG]
+    EVALUATE_SERVER: True           # Options: [True, False]
+    NUM_TRAIN_ROUND: 15
+    SAMPLE_FRACTION: 1.0
+    MIN_SAMPLE_SIZE: 25
+    MIN_NUM_CLIENTS: 25
+    EARLY_STOP: 0.97
+
+CLIENT_CONFIGS:
+    RUN_DEVICE: auto                # Options: [auto, cpu, cuda]
+    LOCAL_EPCH: 1
+    BATCH_SIZE: 64
+    LEARN_RATE: 0.001
+    OPTIMIZER: ADAM                 # Options: [ADAM, SGD]
+    CRITERION: CROSSENTROPY         # Options: [CROSSENTROPY, NLLL]
+
+DATASET_CONFIGS:
+    DATASET_NAME: MNIST          # Options: [MNIST, EMNIST, CIFAR-10]
+    DATASET_PATH: /mimer/NOBACKUP/Datasets/MNIST
+    SPLIT: True
+    DIRICHLET_ALPHA: 1.0
+    RANDOM_SEED: 333
+
+MODEL_CONFIGS:
+    MODEL_NAME: LENET-MNIST          # Options: [SIMPLE-MLP, SIMPLE-CNN, LENET-MNIST, RESNET18-CIFAR]
+    NUM_CLASSES: 10

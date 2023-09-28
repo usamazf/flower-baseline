@@ -15,6 +15,7 @@ def client_runner(
         total_clients: int,
         config_file: str,
         server_address: str,
+        max_gpus: int,
         log_host: str,
     ):
     print(f"Running client {client_id} of {total_clients}.")
@@ -27,7 +28,7 @@ def client_runner(
     # Check for runnable device
     local_device = user_configs["CLIENT_CONFIGS"]["RUN_DEVICE"]
     if local_device == "auto":
-        local_device = "cuda" if torch.cuda.is_available() else "cpu"
+        local_device = f"cuda:{int(client_id%max_gpus)}" if torch.cuda.is_available() else "cpu"
     
     # Load model and data
     model = models.load_model(model_configs=user_configs["MODEL_CONFIGS"])
@@ -87,6 +88,12 @@ def main() -> None:
         help="Configuration file to use (no default)",
     )
     parser.add_argument(
+        "--max_gpus",
+        type=int,
+        default=1,
+        help="Maximum number of available GPUs (default: 1)",
+    )
+    parser.add_argument(
         "--log_host", type=str, help="Logserver address (no default)",
     )
     args = parser.parse_args()
@@ -97,6 +104,7 @@ def main() -> None:
             args.total_clients,
             args.config_file,
             args.server_address,
+            args.max_gpus,
             args.log_host,
         )))
         client_queue[-1].start()

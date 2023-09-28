@@ -1,4 +1,15 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+code/datasets
+code/results
+code/checkpoints
+.spyproject
+code/accuracy_reward.png
+code/configs/C.py
+code/configs/B.py
+code/configs/D.py
+
+# Temporary files
 src/data
 src/test_*
+temp/

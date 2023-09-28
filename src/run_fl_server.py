@@ -49,7 +49,8 @@ def main() -> None:
     # create a server
     custom_server = server.Server(
         client_manager=client_manager, 
-        strategy=agg_strat
+        strategy=agg_strat,
+        early_stop=user_configs["SERVER_CONFIGS"]["EARLY_STOP"]
     )
 
     # Configure logger and start server

@@ -10,6 +10,8 @@ from flwr.common.logger import log
 from flwr.server.history import History
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.server import fit_clients
+from flwr.server.client_manager import ClientManager
+from flwr.server.strategy import Strategy
 
 from flwr.common import (
     FitRes,
@@ -22,6 +24,21 @@ FitResultsAndFailures = Tuple[
 ]
 
 class Server(fl.server.Server):
+    def __init__(
+        self, 
+        *, 
+        client_manager: ClientManager, 
+        strategy: Optional[Strategy] = None,
+        early_stop = None,
+        experiment_manager = None,
+    ) -> None:
+        super().__init__(client_manager=client_manager, strategy=strategy)
+        self.majority_votes = []
+        self.reward_shares = []
+        self.fit_metrics = []
+        self.early_stop = early_stop if early_stop else 100
+        self.experiment_manager = experiment_manager
+
     def fit_round(
         self,
         server_round: int,
@@ -137,6 +154,9 @@ class Server(fl.server.Server):
                     history.add_metrics_distributed(
                         server_round=current_round, metrics=evaluate_metrics_fed
                     )
+                # Check if early stop is requested
+                if evaluate_metrics_fed["accuracy"] >= self.early_stop:
+                    break
 
         # Bookkeeping
         end_time = timeit.default_timer()
