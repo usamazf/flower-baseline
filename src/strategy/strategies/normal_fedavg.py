@@ -176,7 +176,9 @@ class FederatedAverage(fl.server.strategy.Strategy):
         return loss_aggregated, metrics_aggregated
 
     def evaluate(
-        self, server_round: int, parameters: Parameters
+        self, 
+        server_round: int, 
+        parameters: Parameters
     ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
         """Evaluate model parameters using an evaluation function."""
         if self.evaluate_fn is None:

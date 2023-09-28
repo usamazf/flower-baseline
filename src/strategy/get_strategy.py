@@ -18,9 +18,7 @@ import modules
 def get_strategy(user_configs: dict):
     # Check what device to use on 
     # server side to run the computations
-    run_device = ("cuda" if torch.cuda.is_available() else "cpu") \
-        if user_configs["SERVER_CONFIGS"]["RUN_DEVICE"] == "auto" \
-            else user_configs["SERVER_CONFIGS"]["RUN_DEVICE"]
+    run_device = ("cuda:0" if torch.cuda.is_available() else "cpu") if user_configs["SERVER_CONFIGS"]["RUN_DEVICE"] == "auto" else user_configs["SERVER_CONFIGS"]["RUN_DEVICE"]
     
     # Check wether to evaluate the global
     # model on the server side or not
@@ -97,8 +95,8 @@ def get_evaluate_fn(
         ) -> Optional[Tuple[float, float]]:
         """Use the entire CIFAR-10 test set for evaluation."""
         model = models.load_model(model_configs=model_configs)
-        model.set_weights(weights)
         model.to(device)
+        model.set_weights(weights)
         testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False)
         loss, accuracy = modules.evaluate(model, testloader, device=device)
         return loss, {"accuracy": accuracy}
