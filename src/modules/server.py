@@ -86,6 +86,9 @@ class Server(fl.server.Server):
         ] = self.strategy.aggregate_fit(server_round, results, failures)
 
         parameters_aggregated, metrics_aggregated = aggregated_result
+        if self.experiment_manager: 
+            self.experiment_manager.log(metrics_aggregated)
+    
         return parameters_aggregated, metrics_aggregated, (results, failures)
     
     # pylint: disable=too-many-locals
@@ -142,6 +145,13 @@ class Server(fl.server.Server):
                 history.add_metrics_centralized(
                     server_round=current_round, metrics=metrics_cen
                 )
+                
+                if self.experiment_manager: 
+                    self.experiment_manager.log({"eval_accuracy": metrics_cen["accuracy"]})
+
+                # Check if early stop is requested
+                if metrics_cen["accuracy"] >= self.early_stop:
+                    break
 
             # Evaluate model on a sample of available clients
             res_fed = self.evaluate_round(server_round=current_round, timeout=timeout)
@@ -154,9 +164,6 @@ class Server(fl.server.Server):
                     history.add_metrics_distributed(
                         server_round=current_round, metrics=evaluate_metrics_fed
                     )
-                # Check if early stop is requested
-                if evaluate_metrics_fed["accuracy"] >= self.early_stop:
-                    break
 
         # Bookkeeping
         end_time = timeit.default_timer()

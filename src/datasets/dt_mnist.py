@@ -10,9 +10,11 @@ def load_mnist(data_root) -> Tuple[torchvision.datasets.VisionDataset, torchvisi
     """Load MNIST (training and test set)."""
     
     # Define the transform for the data.
-    transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.1307,))]
-    )
+    transform = transforms.Compose([
+        torchvision.transforms.Resize((32,32)),
+        transforms.ToTensor(), 
+        transforms.Normalize((0.1307,), (0.1307,))
+    ])
 
     # Initialize Datasets. MNIST will automatically download if not present
     trainset = torchvision.datasets.MNIST(
