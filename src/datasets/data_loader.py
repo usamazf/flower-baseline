@@ -3,11 +3,14 @@
 def load_data(dataset_name: str, 
               dataset_path: str):
     
-    assert dataset_name in ["MNIST", "CIFAR-10", "EMNIST"], f"Invalid dataset {dataset_name} requested."
+    assert dataset_name in ["MNIST", "CIFAR-10", "EMNIST", "FMNIST"], f"Invalid dataset {dataset_name} requested."
 
     if dataset_name == "MNIST":
         from .dt_mnist import load_mnist
         return load_mnist(data_root=dataset_path)
+    elif dataset_name == "FMNIST":
+        from .dt_fmnist import load_fmnist
+        return load_fmnist(data_root=dataset_path)
     elif dataset_name == "EMNIST":
         from .dt_emnist import load_emnist
         return load_emnist(data_root=dataset_path)
