@@ -18,7 +18,7 @@ import modules
 def get_strategy(user_configs: dict):
     # Check what device to use on 
     # server side to run the computations
-    run_device = ("cuda:0" if torch.cuda.is_available() else "cpu") if user_configs["SERVER_CONFIGS"]["RUN_DEVICE"] == "auto" else user_configs["SERVER_CONFIGS"]["RUN_DEVICE"]
+    run_device = ("cuda:3" if torch.cuda.is_available() else "cpu") if user_configs["SERVER_CONFIGS"]["RUN_DEVICE"] == "auto" else user_configs["SERVER_CONFIGS"]["RUN_DEVICE"]
     
     # Check wether to evaluate the global
     # model on the server side or not
